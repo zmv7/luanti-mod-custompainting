@@ -77,6 +77,13 @@ core.register_entity("custompainting:entity",{
 			self.object:remove()
 		end
 	end,
+	on_step = function(self)
+		local obj = self.object
+		if obj:get_velocity().y > 0 then
+			obj:set_velocity({x=0,y=0,z=0})
+			obj:set_acceleration({x=0,y=0,z=0})
+		end
+	end,
 })
 
 core.register_craftitem("custompainting:custompainting", {
