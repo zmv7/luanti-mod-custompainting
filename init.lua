@@ -27,7 +27,7 @@ core.register_entity("custompainting:entity",{
 	on_rightclick = function(self, clicker)
 		if not clicker or not clicker:is_player() then return end
 		local name = clicker:get_player_name()
-		if self.owner and name ~= self.owner then return end
+		if core.is_protected(self.object:get_pos(), name) then return end
 		editing[clicker] = self
 		core.show_formspec(name, "custompainting:prompt", "size[6,2]" ..
 			"field[0.3,0.5;6,1;texture;Texture;"..F(self.textures[6]:gsub(ftex.."%^?",""):gsub("%^"..frametex,""),"").."]" ..
@@ -56,22 +56,18 @@ core.register_entity("custompainting:entity",{
 			if data.vs then
 				self.visual_size = data.vs
 			end
-			if data.owner then
-				self.owner = data.owner
-				self.infotext = "Owned by "..data.owner
-			end
 			update(self)
 		end
 	end,
 	get_staticdata = function(self)
 		if self.textures and self.visual_size then
-			return core.serialize({owner=self.owner, texture=self.textures[6], vs=self.visual_size})
+			return core.serialize({texture=self.textures[6], vs=self.visual_size})
 		end
 	end,
 	on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir, damage)
 		if not puncher or not puncher:is_player() then return end
 		local ctrl = puncher:get_player_control()
-		if ctrl.sneak and (not self.owner or puncher:get_player_name() == self.owner) then
+		if ctrl.sneak and not core.is_protected(self.object:get_pos(), puncher:get_player_name()) then
 			local stack = ItemStack("custompainting:custompainting")
 			local meta = stack:get_meta()
 			meta:set_string("inventory_image", self.textures[6])
@@ -97,7 +93,7 @@ core.register_craftitem("custompainting:custompainting", {
 		local texture = meta:get("inventory_image")
 		local vss = meta:get("vss")
 		local vs = vss and vector.from_string(vss) or vector.new(1,1,0.05)
-		local obj = core.add_entity(pos, "custompainting:entity", core.serialize({owner=name, texture=texture, vs=vs}))
+		local obj = core.add_entity(pos, "custompainting:entity", core.serialize({texture=texture, vs=vs}))
 		local pyaw = placer:get_look_horizontal()
 		obj:set_yaw(pyaw)
 		if texture or not core.check_player_privs(placer, {creative=true}) then
