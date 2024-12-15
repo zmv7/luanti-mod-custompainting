@@ -132,7 +132,7 @@ core.register_globalstep(function(dtime)
 					placing[player] = nil
 				end
 			else
-				core.record_protection_violation(pos, name)
+				core.record_protection_violation(tpos, name)
 				placing[player] = nil
 			end
 		end
